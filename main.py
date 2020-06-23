@@ -77,6 +77,7 @@ class Sudoku:
         else:
             x,y = (self.t.winfo_x()+1)/self.cell_width,(self.t.winfo_y()+1)/self.cell_height
             self.updateCell(x,y,val)
+            self.canvas.delete(self.e)
 
     def updateCell(self,x,y,value):
         if value<=9:
