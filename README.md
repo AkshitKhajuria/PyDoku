@@ -6,12 +6,8 @@ Solve Sudoku , or let Python solve it for you!
 ## Features :boom: ???
 
 - [X] Play sudoku yourself
-- [ ] Let Python play and solve it for you!
-
-## TODO
-
-- [X] Create GUI
-- [ ] Create AI auto-solve
+- [X] Let Python play and solve it for you!
+- [ ] Generate random sudoku puzzle
 
 ## Top Contributors! :rocket: 
 [![](https://sourcerer.io/fame/AkshitKhajuria/AkshitKhajuria/PyDoku/images/0)](https://sourcerer.io/fame/AkshitKhajuria/AkshitKhajuria/PyDoku/links/0)[![](https://sourcerer.io/fame/AkshitKhajuria/AkshitKhajuria/PyDoku/images/1)](https://sourcerer.io/fame/AkshitKhajuria/AkshitKhajuria/PyDoku/links/1)[![](https://sourcerer.io/fame/AkshitKhajuria/AkshitKhajuria/PyDoku/images/2)](https://sourcerer.io/fame/AkshitKhajuria/AkshitKhajuria/PyDoku/links/2)[![](https://sourcerer.io/fame/AkshitKhajuria/AkshitKhajuria/PyDoku/images/3)](https://sourcerer.io/fame/AkshitKhajuria/AkshitKhajuria/PyDoku/links/3)[![](https://sourcerer.io/fame/AkshitKhajuria/AkshitKhajuria/PyDoku/images/4)](https://sourcerer.io/fame/AkshitKhajuria/AkshitKhajuria/PyDoku/links/4)[![](https://sourcerer.io/fame/AkshitKhajuria/AkshitKhajuria/PyDoku/images/5)](https://sourcerer.io/fame/AkshitKhajuria/AkshitKhajuria/PyDoku/links/5)[![](https://sourcerer.io/fame/AkshitKhajuria/AkshitKhajuria/PyDoku/images/6)](https://sourcerer.io/fame/AkshitKhajuria/AkshitKhajuria/PyDoku/links/6)[![](https://sourcerer.io/fame/AkshitKhajuria/AkshitKhajuria/PyDoku/images/7)](https://sourcerer.io/fame/AkshitKhajuria/AkshitKhajuria/PyDoku/links/7)

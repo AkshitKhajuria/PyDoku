@@ -2,6 +2,8 @@ import tkinter as tk
 from tkinter import font
 from time import sleep
 
+count = 0
+
 class Sudoku:
     #Canvas background
     canvas_bg = "#fafafa" #impure white
@@ -24,7 +26,7 @@ class Sudoku:
         self.canvas.grid(columnspan=2)
         self.canvas.bind("<Button 1>",self.click)
         #Solve button
-        self.btn_solve = tk.Button(master,text='Solve', width=8)
+        self.btn_solve = tk.Button(master,text='Solve', command=self.solve, width=8)
         self.btn_solve.grid(row=1, padx=5, pady=5)
         #Generate button
         self.btn_gen = tk.Button(master,text='Generate', width=8)
@@ -107,23 +109,29 @@ class Sudoku:
             self.t.delete(0,tk.END)
         else:
             #Get x,y coords of edit window and calculate cell row,column values
-            x,y = (self.t.winfo_x()+1)/self.cell_width,(self.t.winfo_y()+1)/self.cell_height
+            x,y = (self.t.winfo_x())/self.cell_width,(self.t.winfo_y())/self.cell_height
             #Update cell with new value
-            self.updateCell(x,y,val)
+            self.updateCell(val,x,y)
             self.canvas.delete(self.e)
 
-    def updateCell(self,x,y,value):
+    def updateCell(self,value,x,y):
         #Get cell information stored in dict self.grid
         t = self.getCell(x,y)
         t[0] = value
         #Update display value by using item id
-        self.canvas.itemconfigure(t[2],text=value)
+        text=value
+        if value==0:
+            text=' '
+        self.canvas.itemconfigure(t[2],text=text)
+        self.canvas.update()
         #Update the dict
         self.grid[(x,y)] = t
 
     def getCell(self, x:int, y:int):
         #Returns info of cell at 'x' row 'y' column
-        val = self.grid[(int(x),int(y))]
+        x=int(x)
+        y=int(y)
+        val = self.grid[(x,y)]
         return val
 
     def populate(self, X:[[]]):
@@ -139,31 +147,104 @@ class Sudoku:
                 text_x = j*self.cell_width+self.cell_width/2
                 text_y = i*self.cell_height+self.cell_height/2
                 val = X[i][j]
-                if val == ' ':
-                    t = c.create_text(text_x,text_y,text=val,font=('Times', '14'))
+                if val == 0:
+                    t = c.create_text(text_x,text_y,text=' ',font=('Times', '14'))
                     self.grid[(j,i)] = [ val, True, t]
                 else:
                     t = c.create_text(text_x,text_y,text=val,font=('bold'))
                     self.grid[(j,i)] = [ val, False, t]
 
-    def Solve(self):
-        pass
+    def getValue(self, row:int, col:int):
+        #Return value at row, column
+        return self.grid[(row,col)][0]
 
+    def printGrid(self):
+        #Utility function to print the grid
+        for i in range(9):
+            x=[]
+            for j in range(9):
+                x.append(self.getValue(j,i))
+            print(x)
+
+    def solve(self):
+        #Start by finding an empty cell
+        x,y = self.findEmpty()
+        #If no cells are empty, our job is done
+        if (x,y)==(None,None):
+            #Print the no. of times solve() was called
+            # print(count, "Iterations")
+            return True
+        
+        #Keep a track of the number of function calls
+        global count
+        count+=1
+        
+        #Try putting in numbers from 1-9
+        for i in range(1,10):
+            #Check if number will satisfy sub-grid rule and row-column rule
+            if self.is_SubGrid_Safe(i,x,y) and self.is_Cell_Safe(i,x,y):
+                #Yes, then update the cell
+                self.updateCell(i,x,y)
+                # self.canvas.after(10,self.updateCell(i,x,y))
+                #Now repeat for remaining cells
+                nxt = self.solve()
+                if nxt==False:
+                    #The value chose earlier is wrong, so backtrack
+                    self.updateCell(0,x,y)
+                else:
+                    #All went well, so return true
+                    return True
+        #Cannot find any number, so return false (backtrack)
+        return False
+    
+    def findEmpty(self):
+        #Utility function to find an empty cell
+        for i in range(9):
+            for j in range(9):
+                cell_val = self.getValue(j,i)
+                if cell_val==0:
+                    return (j,i)
+        return (None,None)
+
+    def is_SubGrid_Safe(self,val,x,y)->bool:
+        #Checks if the sub-grid rule is satisfied for the number 'val' at given row 'x',column 'y'
+        #Figure out the sub grid x,y
+        sgrid_x = int(x/3)*3
+        sgrid_y = int(y/3)*3
+        #Search the sub-grid
+        for i in range(sgrid_x,sgrid_x+3):
+            for j in range(sgrid_y,sgrid_y+3):
+                if val==self.getValue(i,j):
+                    #This number already exists, rule violated
+                    return False
+        #No duplicate number found in sub-grid, rule intact
+        return True
+
+    def is_Cell_Safe(self,val,x,y)->bool:
+        #Check if the number 'val' already exists in the row 'x' or column 'y'
+        for i in range(9):
+            if val==self.getValue(x,i):
+                return False
+            if val==self.getValue(i,y):
+                return False
+        #Row-column rule intact
+        return True
+       
   
 ####################################
 master = tk.Tk()
 master.resizable(False, False)
 game=Sudoku(master)
-ex= [  
-    [' ',' ',' ',  ' ',' ',' ',   2 ,' ',' '],
-    [' ', 8 ,' ',  ' ',' ', 7 ,  ' ', 9 ,' '],
-    [ 6 ,' ', 2 ,  ' ',' ',' ',   5 ,' ',' '],
-    [' ', 7 ,' ',  ' ', 6 ,' ',  ' ',' ',' '],
-    [' ',' ',' ',   9 ,' ', 1 ,  ' ',' ',' '],
-    [' ',' ',' ',  ' ', 2 ,' ',  ' ', 4 ,' '],
-    [' ',' ', 5 ,  ' ',' ',' ',   6 ,' ', 3 ],
-    [' ', 9 ,' ',   4 ,' ',' ',  ' ', 7 ,' '],
-    [' ',' ', 6 ,  ' ',' ',' ',  ' ',' ',' ']
-    ]
+ex= [   
+    [3, 0, 6, 5, 0, 8, 4, 0, 0], 
+    [5, 2, 0, 0, 0, 0, 0, 0, 0], 
+    [0, 8, 7, 0, 0, 0, 0, 3, 1], 
+    [0, 0, 3, 0, 1, 0, 0, 8, 0], 
+    [9, 0, 0, 8, 6, 3, 0, 0, 5], 
+    [0, 5, 0, 0, 9, 0, 6, 0, 0], 
+    [1, 3, 0, 0, 0, 0, 2, 5, 0], 
+    [0, 0, 0, 0, 0, 0, 0, 7, 4], 
+    [0, 0, 5, 2, 0, 6, 3, 0, 0]
+    ]  
 game.populate(ex)
 tk.mainloop()
