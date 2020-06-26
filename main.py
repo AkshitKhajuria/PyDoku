@@ -114,14 +114,16 @@ class Sudoku:
             self.updateCell(val,x,y)
             self.canvas.delete(self.e)
 
-    def updateCell(self,value,x,y):
+    def updateCell(self,value,x,y,editable=True):
         #Get cell information stored in dict self.grid
         t = self.getCell(x,y)
+        #Update values
         t[0] = value
-        #Update display value by using item id
+        t[1] = editable
         text=value
         if value==0:
             text=' '
+        #Update display value by using item id
         self.canvas.itemconfigure(t[2],text=text)
         self.canvas.update()
         #Update the dict
@@ -184,13 +186,13 @@ class Sudoku:
             #Check if number will satisfy sub-grid rule and row-column rule
             if self.is_SubGrid_Safe(i,x,y) and self.is_Cell_Safe(i,x,y):
                 #Yes, then update the cell
-                self.updateCell(i,x,y)
+                self.updateCell(i,x,y,False)
                 # self.canvas.after(10,self.updateCell(i,x,y))
                 #Now repeat for remaining cells
                 nxt = self.solve()
                 if nxt==False:
                     #The value chose earlier is wrong, so backtrack
-                    self.updateCell(0,x,y)
+                    self.updateCell(0,x,y,True)
                 else:
                     #All went well, so return true
                     return True
@@ -201,9 +203,9 @@ class Sudoku:
         #Utility function to find an empty cell
         for i in range(9):
             for j in range(9):
-                cell_val = self.getValue(j,i)
-                if cell_val==0:
-                    return (j,i)
+                cell_val = self.getCell(i,j)[1]
+                if cell_val:
+                    return (i,j)
         return (None,None)
 
     def is_SubGrid_Safe(self,val,x,y)->bool:
