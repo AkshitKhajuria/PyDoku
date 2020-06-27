@@ -104,7 +104,7 @@ class Sudoku:
         try:
             #If input is a number between 1-9, this won't raise any errors
             val = int(val)
-            if(val>9 or val<1):
+            if(val>9 or val<0):
                 raise ValueError
         except ValueError:
             print("Invalid input!")
