@@ -15,7 +15,9 @@ class Sudoku:
     hbox_red = "#d61111" #red
 
     def __init__(self, master):
+        #A record of all cells and their attributes
         self.grid = {}
+        #A small edit window which will be initilized and displayed on click
         self.e = None
         self.canvas_width = 300
         self.canvas_height = 300
@@ -26,7 +28,7 @@ class Sudoku:
         self.canvas.grid(columnspan=2)
         self.canvas.bind("<Button 1>",self.click)
         #Solve button
-        self.btn_solve = tk.Button(master,text='Solve', command=self.solve, width=8)
+        self.btn_solve = tk.Button(master,text='Solve', command=self.wrapper, width=8)
         self.btn_solve.grid(row=1, padx=5, pady=5)
         #Generate button
         self.btn_gen = tk.Button(master,text='Generate', width=8)
@@ -168,6 +170,10 @@ class Sudoku:
                 x.append(self.getValue(j,i))
             print(x)
 
+    def wrapper(self):
+        self.canvas.delete(self.e)
+        self.solve()
+
     def solve(self):
         #Start by finding an empty cell
         x,y = self.findEmpty()
@@ -203,9 +209,9 @@ class Sudoku:
         #Utility function to find an empty cell
         for i in range(9):
             for j in range(9):
-                cell_val = self.getCell(i,j)[1]
+                cell_val = self.getCell(j,i)[1]
                 if cell_val:
-                    return (i,j)
+                    return (j,i)
         return (None,None)
 
     def is_SubGrid_Safe(self,val,x,y)->bool:
@@ -216,7 +222,8 @@ class Sudoku:
         #Search the sub-grid
         for i in range(sgrid_x,sgrid_x+3):
             for j in range(sgrid_y,sgrid_y+3):
-                if val==self.getValue(i,j):
+                #Check only non-editable cells, ignore cells edited by user
+                if val==self.getValue(i,j) and not self.getCell(i,j)[1]:
                     #This number already exists, rule violated
                     return False
         #No duplicate number found in sub-grid, rule intact
@@ -225,9 +232,10 @@ class Sudoku:
     def is_Cell_Safe(self,val,x,y)->bool:
         #Check if the number 'val' already exists in the row 'x' or column 'y'
         for i in range(9):
-            if val==self.getValue(x,i):
+            #Check only non-editable cells, ignore cells edited by user
+            if val==self.getValue(x,i) and not self.getCell(x,i)[1]:
                 return False
-            if val==self.getValue(i,y):
+            if val==self.getValue(i,y) and not self.getCell(i,y)[1]:
                 return False
         #Row-column rule intact
         return True
