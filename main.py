@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import font
-from time import sleep
+# from time import sleep
+import random
 
 count = 0
 
@@ -25,14 +26,18 @@ class Sudoku:
         self.canvas = tk.Canvas(master,bg=self.canvas_bg, width=self.canvas_width, height=self.canvas_height)
         self.t = tk.Entry(self.canvas)
         self.t.bind("<KeyRelease>",self.keyPressed)
-        self.canvas.grid(columnspan=2)
+        self.canvas.grid(columnspan=3)
         self.canvas.bind("<Button 1>",self.click)
         #Solve button
         self.btn_solve = tk.Button(master,text='Solve', command=self.wrapper, width=8)
         self.btn_solve.grid(row=1, padx=5, pady=5)
         #Generate button
-        self.btn_gen = tk.Button(master,text='Generate', width=8)
-        self.btn_gen.grid(row=1, column=1, padx=5, pady=5)
+        self.btn_gen = tk.Button(master,text='Generate', command=self.Generate, width=8)
+        self.btn_gen.grid(row=1, column=1, padx=5, pady=5, sticky=tk.E)
+        #Difficulty selector
+        self.set_difficulty = tk.IntVar(master,1)
+        self.difficulty_selector = tk.OptionMenu(master,self.set_difficulty,1,2,3,4,5)
+        self.difficulty_selector.grid(row=1, column=2, pady=5, sticky=tk.W)
         #Individual cell width and height
         self.cell_width = self.canvas_width/9
         self.cell_height = self.canvas_height/9
@@ -152,11 +157,17 @@ class Sudoku:
                 text_y = i*self.cell_height+self.cell_height/2
                 val = X[i][j]
                 if val == 0:
-                    t = c.create_text(text_x,text_y,text=' ',font=('Times', '14'))
+                    t = c.create_text(text_x,text_y,text=' ',font=('Times', 14))
                     self.grid[(j,i)] = [ val, True, t]
                 else:
-                    t = c.create_text(text_x,text_y,text=val,font=('bold'))
+                    t = c.create_text(text_x,text_y,text=val,font=('Times', 15, 'bold'))
                     self.grid[(j,i)] = [ val, False, t]
+
+    def clearGrid(self):
+        #Utility function to clear the grid, this will also wipe out the puzzle from memory
+        for i in range(9):
+            for j in range(9):
+                self.updateCell(0,i,j)
 
     def getValue(self, row:int, col:int):
         #Return value at row, column
@@ -171,20 +182,22 @@ class Sudoku:
             print(x)
 
     def wrapper(self):
+        global count
+        count = 0
         self.canvas.delete(self.e)
         self.solve()
 
     def solve(self):
+        global count
         #Start by finding an empty cell
         x,y = self.findEmpty()
         #If no cells are empty, our job is done
         if (x,y)==(None,None):
             #Print the no. of times solve() was called
-            # print(count, "Iterations")
+            print("Recursed", count, "times.")
             return True
         
         #Keep a track of the number of function calls
-        global count
         count+=1
         
         #Try putting in numbers from 1-9
@@ -196,14 +209,63 @@ class Sudoku:
                 # self.canvas.after(10,self.updateCell(i,x,y))
                 #Now repeat for remaining cells
                 nxt = self.solve()
-                if nxt==False:
-                    #The value chose earlier is wrong, so backtrack
-                    self.updateCell(0,x,y,True)
-                else:
+                if nxt:
                     #All went well, so return true
                     return True
+                else:
+                    #The value chose earlier is wrong, so backtrack
+                    self.updateCell(0,x,y,True)
+                    
         #Cannot find any number, so return false (backtrack)
         return False
+    
+    def Generate(self, level=1):
+        #Generate random puzzle with difficulty level 'level'
+        #Start by generate diagonal sub-grids with randomly shuffled nos from 1-9
+        nos = list(range(1,10))
+        rand_grid = []
+        for i in range(9):
+            if i%3==0:
+                random.shuffle(nos)
+            t=[0]*9
+            for j in range(3):
+                t_pos = int(i/3)*3+j
+                n_pos = (i%3)*3
+                t[t_pos] = nos[n_pos+j]
+            rand_grid.append(t)
+        #Clean up
+        self.clearGrid()
+        #Cover up the window with a label 
+        cover_label = tk.Label(text="GENERATING",font=('Arial',16))
+        cover = self.canvas.create_window(0,0,window=cover_label,width=self.canvas_width,height=self.canvas_height,anchor=tk.NW)
+        #Populate with the diagonal sub-grids
+        self.populate(rand_grid)
+        #Solve to get the completed puzzle
+        self.solve()
+        global count
+        #Reset count
+        count = 0
+        #Remove random numbers based on set difficulty level, this needs work. Any Math wizards around?
+        level = self.set_difficulty.get()
+        if level<=2: level+=2
+        for i in range(9):
+            for j in range(9):
+                remove = level>random.randint(1,5)
+                if remove:
+                    self.updateCell(0,i,j)
+        
+        #Set the fonts right
+        g=self.grid
+        for i in g.keys():
+            cell = g[i]
+            if cell[1]:
+                #Editable cells have Times-14-regular font
+                self.canvas.itemconfigure(cell[2],font=('Times',14))
+            else:
+                #Non-editable cells have Times-15-bold font
+                self.canvas.itemconfigure(cell[2],font=('Times',15,'bold'))
+        #Finally, lift the cover for the user to see the puzzle
+        self.canvas.delete(cover)
     
     def findEmpty(self):
         #Utility function to find an empty cell
@@ -245,7 +307,7 @@ class Sudoku:
 master = tk.Tk()
 master.resizable(False, False)
 game=Sudoku(master)
-ex= [   
+ex1= [   
     [3, 0, 6, 5, 0, 8, 4, 0, 0], 
     [5, 2, 0, 0, 0, 0, 0, 0, 0], 
     [0, 8, 7, 0, 0, 0, 0, 3, 1], 
@@ -255,6 +317,19 @@ ex= [
     [1, 3, 0, 0, 0, 0, 2, 5, 0], 
     [0, 0, 0, 0, 0, 0, 0, 7, 4], 
     [0, 0, 5, 2, 0, 6, 3, 0, 0]
-    ]  
-game.populate(ex)
+    ]
+#Here's an extreme puzzel, ref : https://www.sudokuwiki.org/Daily_Sudoku
+ex2=[
+    [0, 5, 0, 0, 0, 0, 0, 0, 0], 
+    [3, 0, 8, 0, 7, 0, 2, 0, 0], 
+    [0, 0, 9, 3, 0, 6, 8, 0, 0], 
+    [0, 8, 0, 0, 0, 9, 5, 0, 0], 
+    [9, 0, 0, 0, 0, 0, 0, 0, 1], 
+    [0, 0, 3, 8, 0, 0, 0, 9, 0], 
+    [0, 0, 6, 5, 0, 7, 3, 0, 0], 
+    [0, 0, 1, 0, 4, 0, 6, 0, 7], 
+    [0, 0, 0, 0, 0, 0, 0, 4, 0]
+    ]
+
+game.populate(ex1)
 tk.mainloop()
