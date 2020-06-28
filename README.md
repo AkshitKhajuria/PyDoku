@@ -1,5 +1,5 @@
 # PyDoku 
-[![made-with-python](https://img.shields.io/badge/Made%20with-Python-1f425f.svg)](https://www.python.org/) [![Generic badge](https://img.shields.io/badge/Under-Development-lightgrey.svg)](https://shields.io/) [![HitCount](http://hits.dwyl.com/AkshitKhajuria/PyDoku.svg)](http://hits.dwyl.com/AkshitKhajuria/PyDoku)
+[![made-with-python](https://img.shields.io/badge/Made%20with-Python-1f425f.svg)](https://www.python.org/) [![Generic badge](https://img.shields.io/badge/Build-Passing-lightgreen.svg)](https://shields.io/) [![HitCount](http://hits.dwyl.com/AkshitKhajuria/PyDoku.svg)](http://hits.dwyl.com/AkshitKhajuria/PyDoku)
 
 Solve Sudoku , or let Python solve it for you!
 
