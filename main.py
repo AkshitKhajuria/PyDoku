@@ -305,6 +305,7 @@ class Sudoku:
   
 ####################################
 master = tk.Tk()
+master.title("PyDoku")
 master.resizable(False, False)
 game=Sudoku(master)
 ex1= [   
