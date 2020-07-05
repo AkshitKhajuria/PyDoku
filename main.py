@@ -182,10 +182,19 @@ class Sudoku:
             print(x)
 
     def wrapper(self):
+        #A small wrapper funtion that performs some small tasks before solving
         global count
+        #Reset the count
         count = 0
+        #Delete edit boxes if any
         self.canvas.delete(self.e)
+        #Lock the buttons and start solving
+        self.btn_gen.configure(state='disabled')
+        self.btn_solve.configure(state='disabled')
         self.solve()
+        #After solving, set the buttons back to normal
+        self.btn_gen.configure(state='normal')
+        self.btn_solve.configure(state='normal')
 
     def solve(self):
         global count
@@ -220,6 +229,9 @@ class Sudoku:
         return False
     
     def Generate(self, level=1):
+        #Disable the buttons
+        self.btn_solve.configure(state='disabled')
+        self.btn_gen.configure(state='disabled')
         #Generate random puzzle with difficulty level 'level'
         #Start by generate diagonal sub-grids with randomly shuffled nos from 1-9
         nos = list(range(1,10))
@@ -266,6 +278,9 @@ class Sudoku:
                 self.canvas.itemconfigure(cell[2],font=('Times',15,'bold'))
         #Finally, lift the cover for the user to see the puzzle
         self.canvas.delete(cover)
+        #and set the buttons back to normal
+        self.btn_solve.configure(state='normal')
+        self.btn_gen.configure(state='normal')
     
     def findEmpty(self):
         #Utility function to find an empty cell
